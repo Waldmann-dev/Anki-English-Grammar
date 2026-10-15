@@ -1,3 +1,3 @@
 # English Vocabulary / Religion & Belief
 
-23 words.
+25 words.

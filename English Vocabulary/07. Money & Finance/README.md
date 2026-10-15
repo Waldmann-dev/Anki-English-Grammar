@@ -1,3 +1,3 @@
 # English Vocabulary / Money & Finance
 
-63 words.
+65 words.

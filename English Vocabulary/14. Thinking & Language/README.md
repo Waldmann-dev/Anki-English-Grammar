@@ -1,3 +1,3 @@
 # English Vocabulary / Thinking & Language
 
-486 words.
+491 words.

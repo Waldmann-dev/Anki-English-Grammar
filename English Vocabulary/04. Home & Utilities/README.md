@@ -1,3 +1,3 @@
 # English Vocabulary / Home & Utilities
 
-128 words.
+107 words.

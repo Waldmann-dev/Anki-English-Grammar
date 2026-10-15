@@ -124,10 +124,9 @@
     <div class="topline"><span id="qCounter"></span><span id="qScore"></span></div>
     <div class="progress"><div id="qBar"></div></div>
     <div class="front" id="qFront"></div>
-    <p class="hint" id="qHint"></p>
+    <div id="qFrontExample"></div>
     <div id="answerWrap" class="answer hidden">
       <div id="qAnswer"></div>
-      <div id="qExample"></div>
     </div>
     <div id="revealRow"><button id="revealBtn" class="primary wide">Show answer <span class="muted" style="color:#ddd;font-weight:400">(Space)</span></button></div>
     <div id="gradeRow" class="grade hidden">
@@ -405,10 +404,15 @@ function showCard(){
   $("answerWrap").classList.add("hidden");
   $("revealRow").classList.remove("hidden");
   $("gradeRow").classList.add("hidden");
-  $("qAnswer").innerHTML = ""; $("qExample").innerHTML = "";
+  $("qAnswer").innerHTML = "";
   $("qFront").className = "front big"; $("qFront").textContent = card.word;
-  $("qHint").classList.remove("hidden");
-  $("qHint").textContent = "What is the pronunciation, meaning and synonyms?";
+  $("qFrontExample").innerHTML = "";
+  if (!isDash(card.ex)){
+    const ex = el("div", "example");
+    ex.appendChild(el("div", "small muted", "Example"));
+    ex.appendChild(el("div", "", card.ex));
+    $("qFrontExample").appendChild(ex);
+  }
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 function reveal(){
@@ -419,12 +423,6 @@ function reveal(){
   if (!isDash(card.pron)) $("qAnswer").appendChild(el("div", "pinyin", card.pron));
   $("qAnswer").appendChild(el("div", "eng", card.mean));
   if (!isDash(card.syn)) $("qAnswer").appendChild(el("div", "eng", "Synonyms: " + card.syn));
-  if (!isDash(card.ex)){
-    const ex = el("div", "example");
-    ex.appendChild(el("div", "small muted", "Example"));
-    ex.appendChild(el("div", "", card.ex));
-    $("qExample").appendChild(ex);
-  }
 }
 function grade(ok){
   const card = queue[idx];
