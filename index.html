@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>English Advanced Grammar Flashcards — Live from GitHub</title>
+<meta name="description" content="Anki-style flashcards for English Grammar in Use (Advanced) Activities. Loads cards live from the GitHub repo, no algorithm, each card once per round.">
+<style>
+  :root{--bg:#f6f4ef;--card:#fff;--ink:#1c1c1c;--muted:#6b675e;--line:#e5e0d5;--accent:#c0392b;--green:#1e7d4d;--red:#b42318;--blue:#1d4ed8}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.5}
+  header{max-width:760px;margin:0 auto;padding:28px 16px 8px}
+  h1{margin:0;font-size:28px;line-height:1.15}
+  .sub{color:var(--muted);margin:8px 0 0}
+  .sub a{color:inherit}
+  main{max-width:760px;margin:0 auto;padding:8px 16px 48px}
+  .box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .muted{color:var(--muted);font-size:14px}
+  .small{font-size:13px}
+  button{border:0;border-radius:10px;padding:12px 18px;font-size:16px;font-weight:650;cursor:pointer}
+  button:disabled{opacity:.45;cursor:not-allowed}
+  .primary{background:var(--ink);color:#fff}
+  .good{background:var(--green);color:#fff}
+  .bad{background:var(--red);color:#fff}
+  .ghost{background:#eee9df;color:var(--ink)}
+  .wide{width:100%}
+  /* deck tree */
+  ul.tree{list-style:none;margin:12px 0 0;padding:0}
+  ul.tree ul{list-style:none;margin:4px 0 4px 22px;padding:0;border-left:1px solid var(--line)}
+  ul.tree li{padding:5px 0 5px 8px}
+  label.chk{display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+  label.chk input{margin-top:4px;accent-color:var(--ink);width:18px;height:18px;flex:none}
+  .treerow > input[type=checkbox]{accent-color:var(--ink);width:18px;height:18px;flex:none;margin:0}
+  .count{color:var(--muted);font-size:13px}
+  .folder{font-weight:700}
+  #setupView label{display:inline-flex;gap:8px;align-items:center;margin-right:18px;cursor:pointer}
+  #setupView h2{font-size:19px}
+  /* quiz */
+  .progress{height:8px;background:#e9e4d8;border-radius:999px;overflow:hidden;margin:4px 0 14px}
+  .progress>div{height:100%;background:var(--ink);width:0%}
+  .topline{display:flex;justify-content:space-between;gap:12px;color:var(--muted);font-size:14px;margin-bottom:10px}
+  .decklabel{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  .front{font-size:22px;font-weight:650;margin:10px 0 6px;white-space:pre-wrap;overflow-wrap:anywhere}
+  .front.big{font-size:56px;line-height:1.2}
+  .front-zh{font-size:56px;line-height:1.2;font-weight:650}
+  .front-py{font-size:30px;line-height:1.3;color:var(--muted);font-weight:500;margin-top:2px}
+  .hint{color:var(--muted);font-size:14px;margin:0 0 14px}
+  .answer{border-top:1px solid var(--line);margin-top:16px;padding-top:16px}
+  .answer .a{font-size:20px;font-weight:650;white-space:pre-wrap;overflow-wrap:anywhere}
+  .answer .pinyin{font-size:28px;font-weight:700}
+  .answer .eng{font-size:20px;margin-top:4px}
+  .example{margin-top:14px;background:#faf7f0;border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .example .zh{font-size:22px}
+  .example .py{color:var(--muted)}
+  .grade{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+  .grade button{padding:14px}
+  kbd{background:#eee9df;border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;padding:1px 6px;font-size:12px}
+  /* results */
+  .score{font-size:56px;font-weight:800;line-height:1;margin:8px 0}
+  .wrong{margin-top:18px}
+  .wrong details{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:8px 0}
+  .wrong summary{cursor:pointer;font-weight:650}
+  .wrong .ans{margin-top:8px;white-space:pre-wrap}
+  .howto-box{background:#faf7f0;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-top:10px}
+  .howto{list-style:none;margin:10px 0 0;padding:0;font-size:16px;line-height:1.55}
+  .howto li{margin:8px 0}
+  .howto .big-arrow{font-size:26px;vertical-align:-2px}
+  .treerow{display:flex;gap:8px;align-items:center}
+  button.toggle{background:#eee9df;border:1px solid var(--line);border-radius:10px;padding:5px;min-width:40px;min-height:40px;cursor:pointer;font-size:28px;line-height:1;color:var(--ink);flex:none}
+  ul.collapsed{display:none}
+  footer{max-width:760px;margin:24px auto 0;padding:0 16px 56px;color:var(--muted);font-size:14px}
+  footer a{color:inherit}
+  .version{position:fixed;right:12px;bottom:12px;z-index:50;background:#eee9df;border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:12px;color:var(--muted)}
+  #status{margin-top:12px}
+  .error{background:#fdecea;border:1px solid #f5c6c0;border-radius:10px;padding:12px 14px}
+  .hidden{display:none!important}
+  /* grammar cards */
+  .rubric{background:#008455;color:#fff;font-weight:600;font-size:16px;padding:10px 14px;border-radius:10px;margin-bottom:14px}
+  .blank{color:#1e7d4d;font-weight:800}
+  .ans{color:#1e7d4d;font-weight:800;text-decoration:underline}
+  .choices{list-style:none;display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 0;padding:0}
+  .choices li{border:2px solid var(--line);border-radius:999px;padding:4px 12px;font-size:16px;background:#faf7f0}
+  .choices-label{font-weight:700;margin-top:10px;color:var(--muted);font-size:14px}
+  .eximg{max-width:100%;border-radius:10px;margin:0 0 12px;border:1px solid var(--line)}
+</style>
+</head>
+<body>
+<header>
+  <h1>🇬🇧 English Advanced Grammar Flashcards</h1>
+  <p style="margin:12px 0 0"><button id="reloadBtn" class="ghost" style="padding:6px 10px;font-size:13px">↻ Reload from GitHub</button></p>
+</header>
+
+<main>
+  <!-- SETUP -->
+  <section id="setupView" class="box">
+    <div class="row" style="justify-content:space-between">
+      <h2 style="margin:0">1. Choose decks</h2>
+      <span class="muted" id="totalLabel"></span>
+    </div>
+    <div class="howto-box"><ul class="howto">
+      <li><span class="big-arrow">▶</span> Press arrow to expand</li>
+      <li><span class="big-arrow">☑</span> Click box to select</li>
+      <li>If a top deck is selected, all its sub-decks are included</li>
+      <li>Fill in the blank — then reveal and grade yourself. Enjoy!</li>
+    </ul></div>
+    <div class="row" style="margin-top:12px">
+      <button id="allBtn" class="ghost">Select all</button>
+      <button id="noneBtn" class="ghost">Deselect all</button>
+    </div>
+    <div id="treeWrap"><p class="muted">Loading decks from GitHub…</p></div>
+
+    <h2 style="margin:16px 0 8px">2. Order</h2>
+    <div>
+      <label><input type="radio" name="order" value="random" checked> Random <span class="muted">(shuffled)</span></label>
+      <label><input type="radio" name="order" value="inorder"> In order <span class="muted">(as in the repo)</span></label>
+    </div>
+
+    <h2 style="margin:16px 0 8px">3. How it works</h2>
+    <p class="muted" style="margin:0;font-size:16px">Fill in the blank (use the choices if given), reveal the answer, then grade yourself honestly: <strong>Correct</strong> or <strong>Wrong</strong>.</p>
+    <button id="startBtn" class="primary wide" disabled>Start quiz</button>
+    <p class="muted small" id="selLabel" style="margin:10px 0 0"></p>
+    <div id="status"></div>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="quizView" class="hidden">
+    <button id="quitBtn" class="primary wide" style="font-size:18px;padding:16px">← Back to deck selection</button>
+    <p class="muted small" style="margin:12px 4px 10px">Your progress in this round is discarded if you go back.</p>
+    <p id="qSelection" style="margin:0 4px 12px;font-weight:650"></p>
+    <div class="box">
+    <div class="topline"><span id="qCounter"></span><span id="qScore"></span></div>
+    <div class="progress"><div id="qBar"></div></div>
+    <div id="qRubric" class="rubric"></div>
+    <div id="qImage"></div>
+    <div class="front" id="qFront"></div>
+    <p class="hint" id="qHint"></p>
+    <div id="qChoices"></div>
+    <div id="answerWrap" class="answer hidden">
+      <div id="qAnswer"></div>
+      <div id="qExample"></div>
+      <div id="qAudio"></div>
+    </div>
+    <div id="revealRow"><button id="revealBtn" class="primary wide">Show answer <span class="muted" style="color:#ddd;font-weight:400">(Space)</span></button></div>
+    <div id="gradeRow" class="grade hidden">
+      <button id="wrongBtn" class="bad">✗ Wrong <span style="font-weight:400">(←)</span></button>
+      <button id="rightBtn" class="good">✓ Correct <span style="font-weight:400">(→)</span></button>
+    </div>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <section id="resultsView" class="hidden">
+    <button id="homeBtn" class="primary wide" style="font-size:18px;padding:16px">← Back to deck selection</button>
+    <div class="box" style="margin-top:12px">
+    <h2 style="margin:0;font-size:19px">Done! 🎉</h2>
+    <div class="score" id="resScore"></div>
+    <p id="resText" style="margin:0"></p>
+    <div class="row" style="margin-top:18px">
+      <button id="retryWrongBtn" class="primary">Repeat only wrong cards</button>
+      <button id="retryAllBtn" class="ghost">Repeat same selection</button>
+    </div>
+    <div id="wrongWrap" class="wrong"></div>
+    </div>
+  </section>
+</main>
+<footer>
+  <p>Anki-style quiz. Cards load <strong>live</strong> from the <a href="https://github.com/Waldmann-dev/Anki-English-Grammar" target="_blank" rel="noopener">GitHub repo</a> — no copy, no algorithm. Each card comes up exactly once per round.</p>
+  <p class="muted small">Source: <a href="https://github.com/Waldmann-dev/Anki-English-Grammar" target="_blank" rel="noopener">Waldmann-dev/Anki-English-Grammar</a> · <span id="loadedAt">loading…</span></p>
+</footer>
+<div class="version">v1.0</div>
+
+<script>
+const REPO = "Waldmann-dev/Anki-English-Grammar";
+const BRANCH = "main";
+const TREE_URL = `https://api.github.com/repos/${REPO}/git/trees/${BRANCH}?recursive=1`;
+const rawUrl = (path) => `https://raw.githubusercontent.com/${REPO}/${BRANCH}/${path.split("/").map(encodeURIComponent).join("/")}`;
+
+// ---------- state ----------
+let decks = [];          // [{path, label, parts, cards}]
+let treeRoot = null;     // tree nodes for the picker
+let queue = [];          // cards for current round
+let currentAudio = null; // audio playing on the back of a grammar card
+let queueMeta = null;    // {selectedPaths, order}
+let idx = 0, correct = 0, wrongCards = [];
+
+// ---------- helpers ----------
+const $ = (id) => document.getElementById(id);
+const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
+const isDash = (s) => s == null || s.trim() === "" || s.trim() === "–" || s.trim() === "-";
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+// ---------- TSV parsing ----------
+// Grammar: Question | Answer | Choices | Rubric | Audio | Image
+// Q&A: Question | Answer | Example
+// Vocab: Chinese | Pinyin | English | Example (Chinese) | Example (Pinyin) | Example (English)
+function parseTSV(text, path){
+  const lines = text.replace(/\r\n?/g, "\n").split("\n").filter(l => l.trim() !== "");
+  if (lines.length < 2) return [];
+  const header = lines[0].split("\t").map(h => h.trim());
+  const cards = [];
+  for (const line of lines.slice(1)){
+    const cols = line.split("\t");
+    const get = (i) => (cols[i] ?? "").trim();
+    if (header[0] === "Question" && header[2] === "Choices"){
+      cards.push({ deck: path, type: "grammar", q: get(0), a: get(1), choices: get(2), rubric: get(3), audio: get(4), image: get(5) });
+    } else if (header[0] === "Question"){
+      cards.push({ deck: path, type: "qa", q: get(0), a: get(1), ex: get(2) });
+    } else if (header[0] === "Chinese"){
+      cards.push({ deck: path, type: "vocab", zh: get(0), pinyin: get(1), en: get(2), exZh: get(3), exPy: get(4), exEn: get(5) });
+    }
+  }
+  return cards.filter(c => (c.q || c.zh));
+}
+
+// ---------- loading live from GitHub ----------
+async function loadDecks(){
+  $("status").innerHTML = "";
+  $("treeWrap").innerHTML = "<p class='muted'>Loading decks from GitHub…</p>";
+  $("startBtn").disabled = true;
+  const treeRes = await fetch(TREE_URL, { headers: { "Accept": "application/vnd.github+json" } });
+  if (!treeRes.ok) throw new Error(`GitHub API ${treeRes.status} — try again in a minute (rate limit?)`);
+  const tree = await treeRes.json();
+  const tsvPaths = tree.tree.filter(t => t.type === "blob" && t.path.endsWith("/cards.tsv")).map(t => t.path).sort();
+  decks = [];
+  const skipped = [];
+  for (const p of tsvPaths){
+    try {
+      const res = await fetch(rawUrl(p));
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const dir = p.replace(/\/cards\.tsv$/, "");
+      const cards = parseTSV(await res.text(), dir);
+      decks.push({ path: dir, label: dir.split("/").join(" :: "), parts: dir.split("/"), cards });
+    } catch (e) {
+      // One file may 404 while the repo is being restructured — skip it,
+      // load everything else, and warn instead of failing the whole page.
+      skipped.push(p);
+    }
+  }
+  if (decks.length === 0) throw new Error("No decks could be loaded from GitHub.");
+  if (skipped.length) {
+    $("status").innerHTML = "";
+    const w = el("div", "error", `Note: ${skipped.length} deck(s) could not be loaded right now (repo may be mid-update) — press Reload to try again.`);
+    $("status").appendChild(w);
+  }
+  decks.sort((a,b) => a.path.localeCompare(b.path));
+  buildTree();
+  renderTree();
+  $("loadedAt").textContent = "loaded " + new Date().toLocaleString();
+  const total = decks.reduce((s,d) => s + d.cards.length, 0);
+  $("totalLabel").textContent = total + " cards in " + decks.length + " decks";
+  updateSelectionLabel();
+}
+
+// ---------- grammar rendering ----------
+// Question holds the Anki cloze {{c1::answer}} plus HTML (<b>, <br />, <u>, <i>).
+// Front: cloze -> ___ (underlined original stays visible, like Anki).
+// Back: cloze -> highlighted answer, bracket hints (<i>verb</i>) and the
+// underlined original after a corrected form are dropped, like Anki's back template.
+const CLOZE_RE = /\{\{c\d+::(.*?)\}\}/g;
+const mediaUrl = (folder, fn) => `https://raw.githubusercontent.com/${REPO}/${BRANCH}/${folder}/${fn.split("/").map(encodeURIComponent).join("/")}`;
+function frontHTML(q){ return q.replace(CLOZE_RE, '<span class="blank">___</span>'); }
+function backHTML(q){
+  let h = q.replace(CLOZE_RE, '<span class="ans">$1</span>');
+  h = h.replace(/\s*\(<i>[^<]*<\/i>\)/g, "");
+  h = h.replace(/(<span class="ans">.*?<\/span>)\s*<u>.*?<\/u>/g, "$1");
+  return h;
+}
+function escapeHTML(s){ return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+function choicesHTML(choices){
+  if (isDash(choices)) return "";
+  const boxes = choices.split(" | ");
+  let html = "";
+  boxes.forEach((box, bi) => {
+    const items = box.split(";").map(x => x.trim()).filter(Boolean);
+    if (!items.length) return;
+    if (boxes.length > 1) html += `<div class="choices-label">Box (${bi === 0 ? "i" : "ii"})</div>`;
+    html += `<ul class="choices">${items.map(it => `<li>${escapeHTML(it)}</li>`).join("")}</ul>`;
+  });
+  return html;
+}
+function stopAudio(){ if (currentAudio){ currentAudio.pause(); currentAudio = null; } }
+
+// ---------- deck tree (folders + decks with own cards) ----------
+// Model: deck checkboxes carry data-deck="<full dir path>" and are the ONLY
+// source of selection. Folder checkboxes carry data-folder and only toggle
+// all deck checkboxes below them. A node with BOTH own cards and children
+// (e.g. 00. Pinyin) gets a folder row + a separate "own cards" deck row,
+// so unchecking one sub-deck never silently drops the 20 own cards.
+function buildTree(){
+  treeRoot = { name: "", children: new Map(), deck: null };
+  for (const d of decks){
+    let node = treeRoot;
+    for (let i = 0; i < d.parts.length; i++){
+      const part = d.parts[i];
+      if (!node.children.has(part)) node.children.set(part, { name: part, children: new Map(), deck: null });
+      node = node.children.get(part);
+    }
+    node.deck = d;
+  }
+}
+function descendantDecks(node, out = []){ if (node.deck) out.push(node.deck); for (const c of node.children.values()) descendantDecks(c, out); return out; }
+function deckCheckbox(path){
+  const cb = document.createElement("input");
+  cb.type = "checkbox"; cb.dataset.deck = path; cb.checked = true;
+  cb.addEventListener("change", () => { syncCheckboxes(); updateSelectionLabel(); });
+  return cb;
+}
+function renderTree(){
+  const wrap = $("treeWrap"); wrap.innerHTML = "";
+  const ul = el("ul", "tree");
+  for (const child of treeRoot.children.values()) ul.appendChild(renderNode(child, child.name));
+  wrap.appendChild(ul);
+  syncCheckboxes();
+}
+let fcbSeq = 0;
+function renderNode(node, path){
+  const total = descendantDecks(node).reduce((s,d)=>s+d.cards.length,0);
+  // Leaf deck: single deck row, no folder row.
+  if (node.deck && node.children.size === 0){
+    const li = document.createElement("li");
+    const label = el("label", "chk");
+    label.appendChild(deckCheckbox(path));
+    const span = document.createElement("span");
+    span.appendChild(el("span", "", node.name));
+    span.appendChild(el("span", "count", ` (${node.deck.cards.length} cards)`));
+    label.appendChild(span);
+    li.appendChild(label);
+    return li;
+  }
+  // Folder (with or without own cards). Top-level folders start expanded,
+  // deeper levels start collapsed; the arrow toggles on click.
+  const li = document.createElement("li");
+  const row = el("div", "treerow");
+  const tgl = document.createElement("button");
+  const depth = path.split("/").length;
+  const open0 = depth === 1; // top-level folder: start expanded
+  // Arrow box shrinks per level: 42 / 38 / 32px (glyph stays 28px,
+  // level 3+ just fits around it). Padding shrinks with it.
+  const boxSize = depth === 1 ? 42 : depth === 2 ? 38 : 32;
+  const boxPad = depth === 1 ? 6 : depth === 2 ? 4 : 1;
+  tgl.style.minWidth = boxSize + "px";
+  tgl.style.minHeight = boxSize + "px";
+  tgl.style.padding = boxPad + "px";
+  tgl.type = "button"; tgl.className = "toggle"; tgl.textContent = open0 ? "▾" : "▸";
+  tgl.setAttribute("aria-label", "Expand sub-decks"); tgl.setAttribute("aria-expanded", String(open0));
+  const fcb = document.createElement("input");
+  fcb.type = "checkbox"; fcb.dataset.folder = path; fcb.checked = true;
+  fcb.id = "fcb-" + (++fcbSeq);
+  fcb.addEventListener("change", () => {
+    li.querySelectorAll("input[data-deck]").forEach(c => { c.checked = fcb.checked; });
+    syncCheckboxes(); updateSelectionLabel();
+  });
+  const flabel = el("label", "chk");
+  flabel.htmlFor = fcb.id;
+  const fspan = document.createElement("span");
+  fspan.appendChild(el("span", "folder", node.name));
+  fspan.appendChild(el("span", "count", ` (${total} cards)`));
+  flabel.appendChild(fspan);
+  row.appendChild(fcb);
+  row.appendChild(tgl);
+  row.appendChild(flabel);
+  li.appendChild(row);
+  const sub = el("ul");
+  if (!open0) sub.classList.add("collapsed");
+  let open = open0;
+  tgl.addEventListener("click", () => {
+    open = !open;
+    sub.classList.toggle("collapsed", !open);
+    tgl.textContent = open ? "▾" : "▸";
+    tgl.setAttribute("aria-expanded", String(open));
+  });
+  if (node.deck){
+    const ownLi = document.createElement("li");
+    const olabel = el("label", "chk");
+    olabel.appendChild(deckCheckbox(path));
+    const ospan = document.createElement("span");
+    ospan.appendChild(el("span", "", "Own cards — " + node.name));
+    ospan.appendChild(el("span", "count", ` (${node.deck.cards.length} cards)`));
+    olabel.appendChild(ospan);
+    ownLi.appendChild(olabel);
+    sub.appendChild(ownLi);
+  }
+  for (const child of node.children.values()) sub.appendChild(renderNode(child, path + "/" + child.name));
+  li.appendChild(sub);
+  return li;
+}
+function syncCheckboxes(){
+  // Bottom-up: folder reflects its descendant deck checkboxes. Deepest first.
+  const folders = [...document.querySelectorAll("#treeWrap input[data-folder]")];
+  // sort by depth (more slashes = deeper) descending
+  folders.sort((a,b) => (b.dataset.folder.split("/").length) - (a.dataset.folder.split("/").length));
+  for (const fcb of folders){
+    const li = fcb.closest("li");
+    const subs = [...li.querySelectorAll(":scope > ul input[data-deck]")];
+    if (!subs.length) continue;
+    const on = subs.filter(c => c.checked).length;
+    if (on === 0){ fcb.checked = false; fcb.indeterminate = false; }
+    else if (on === subs.length){ fcb.checked = true; fcb.indeterminate = false; }
+    else { fcb.checked = false; fcb.indeterminate = true; }
+  }
+}
+function selectedDecks(){
+  const byPath = new Map(decks.map(d => [d.path, d]));
+  return [...document.querySelectorAll("#treeWrap input[data-deck]")]
+    .filter(c => c.checked).map(c => byPath.get(c.dataset.deck)).filter(Boolean);
+}
+function selectedCardCount(){ return selectedDecks().reduce((s,d) => s + d.cards.length, 0); }
+function updateSelectionLabel(){
+  const n = selectedCardCount();
+  $("selLabel").textContent = n === 0 ? "No cards selected." : `${n} card${n===1?"":"s"} selected.`;
+  $("startBtn").disabled = n === 0;
+}
+
+// ---------- quiz ----------
+function startRound(cardList, meta){
+  queue = cardList.slice();
+  const order = document.querySelector("input[name=order]:checked").value;
+  if (order === "random") shuffle(queue);
+  queueMeta = meta || { order };
+  idx = 0; correct = 0; wrongCards = [];
+  $("setupView").classList.add("hidden");
+  $("resultsView").classList.add("hidden");
+  $("quizView").classList.remove("hidden");
+  showCard();
+}
+// Deck label for one card, e.g. "01. Tenses / 01. Present continuous and present simple 1".
+// card.deck holds the deck folder path; the leading top-deck segment is dropped.
+function cardDeckLabel(card){
+  const parts = (card.deck || "").split("/");
+  const short = parts.length > 1 ? parts.slice(1).join(" / ") : (card.deck || "");
+  return short || "Unknown deck";
+}
+function showCard(){
+  const card = queue[idx];
+  stopAudio();
+  $("qSelection").textContent = "Deck: " + cardDeckLabel(card);
+  $("qCounter").textContent = `Card ${idx+1} of ${queue.length}`;
+  $("qScore").textContent = `✓ ${correct} · ✗ ${wrongCards.length}`;
+  $("qBar").style.width = (idx / queue.length * 100) + "%";
+  $("answerWrap").classList.add("hidden");
+  $("revealRow").classList.remove("hidden");
+  $("gradeRow").classList.add("hidden");
+  $("qAnswer").innerHTML = ""; $("qExample").innerHTML = ""; $("qAudio").innerHTML = "";
+  $("qRubric").innerHTML = ""; $("qImage").innerHTML = ""; $("qChoices").innerHTML = "";
+  if (card.type === "grammar"){
+    $("qRubric").innerHTML = card.rubric;
+    if (!isDash(card.image)){
+      const img = document.createElement("img");
+      img.className = "eximg"; img.alt = "";
+      img.src = mediaUrl("images", card.image);
+      img.onerror = () => img.remove();
+      $("qImage").appendChild(img);
+    }
+    $("qFront").className = "front"; $("qFront").innerHTML = frontHTML(card.q);
+    $("qHint").classList.add("hidden");
+    $("qChoices").innerHTML = choicesHTML(card.choices);
+  } else if (card.type === "qa"){
+    // Vocab front like "你好 nǐ hǎo": character on top, Pinyin below, a tick smaller.
+    const m = card.q.match(/^([\u4e00-\u9fff]+)\s+(.+)$/);
+    if (m){
+      $("qFront").className = "front"; $("qFront").innerHTML = "";
+      const zh = document.createElement("div"); zh.className = "front-zh"; zh.textContent = m[1];
+      const py = document.createElement("div"); py.className = "front-py"; py.textContent = m[2];
+      $("qFront").appendChild(zh); $("qFront").appendChild(py);
+    } else {
+      $("qFront").className = "front"; $("qFront").textContent = card.q;
+    }
+    $("qHint").classList.add("hidden");
+  } else {
+    $("qFront").className = "front big"; $("qFront").textContent = card.zh;
+    $("qHint").classList.remove("hidden");
+    $("qHint").textContent = "What is the Pinyin and the English meaning?";
+  }
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+function reveal(){
+  const card = queue[idx];
+  $("answerWrap").classList.remove("hidden");
+  $("revealRow").classList.add("hidden");
+  $("gradeRow").classList.remove("hidden");
+  if (card.type === "grammar"){
+    $("qChoices").innerHTML = "";
+    const a = el("div", "a", ""); a.innerHTML = backHTML(card.q); $("qAnswer").appendChild(a);
+    if (!isDash(card.audio)){
+      const btn = document.createElement("button");
+      btn.className = "ghost"; btn.style.marginTop = "14px"; btn.textContent = "🔊 Listen to the correct sentence";
+      btn.addEventListener("click", () => {
+        stopAudio();
+        currentAudio = new Audio(mediaUrl("audio", card.audio));
+        currentAudio.play().catch(() => { btn.textContent = "🔊 Audio not available"; });
+      });
+      $("qAudio").appendChild(btn);
+    }
+  } else if (card.type === "qa"){
+    const a = el("div", "a", card.a); $("qAnswer").appendChild(a);
+    if (!isDash(card.ex)){
+      const ex = el("div", "example");
+      ex.appendChild(el("div", "small muted", "Example"));
+      ex.appendChild(el("div", "", card.ex));
+      $("qExample").appendChild(ex);
+    }
+  } else {
+    const p = el("div", "pinyin", card.pinyin); $("qAnswer").appendChild(p);
+    $("qAnswer").appendChild(el("div", "eng", card.en));
+    if (!isDash(card.exZh) || !isDash(card.exPy) || !isDash(card.exEn)){
+      const ex = el("div", "example");
+      ex.appendChild(el("div", "small muted", "Example"));
+      if (!isDash(card.exZh)) ex.appendChild(el("div", "zh", card.exZh));
+      if (!isDash(card.exPy)) ex.appendChild(el("div", "py", card.exPy));
+      if (!isDash(card.exEn)) ex.appendChild(el("div", "", card.exEn));
+      $("qExample").appendChild(ex);
+    }
+  }
+}
+function grade(ok){
+  const card = queue[idx];
+  if (ok) correct++; else wrongCards.push(card);
+  idx++;
+  if (idx >= queue.length) showResults();
+  else showCard();
+}
+function showResults(){
+  $("quizView").classList.add("hidden");
+  $("resultsView").classList.remove("hidden");
+  const total = queue.length;
+  const pct = total ? Math.round(correct / total * 100) : 0;
+  $("resScore").textContent = `${correct} / ${total} · ${pct}%`;
+  $("resText").textContent = wrongCards.length === 0
+    ? "Perfect round — every card correct. 🎉"
+    : `You got ${correct} right and ${wrongCards.length} wrong. Review the wrong ones below.`;
+  $("retryWrongBtn").style.display = wrongCards.length ? "" : "none";
+  const wrap = $("wrongWrap"); wrap.innerHTML = "";
+  if (wrongCards.length){
+    wrap.appendChild(el("h3", "", "Wrong cards — review"));
+    for (const card of wrongCards){
+      const det = document.createElement("details");
+      const sum = document.createElement("summary");
+      if (card.type === "grammar") sum.innerHTML = frontHTML(card.q);
+      else sum.textContent = card.type === "qa" ? card.q : `${card.zh} — ${card.pinyin} — ${card.en}`;
+      det.appendChild(sum);
+      const ans = el("div", "ans");
+      if (card.type === "grammar") ans.innerHTML = backHTML(card.q);
+      else if (card.type === "qa") ans.textContent = card.a + (!isDash(card.ex) ? `\nExample: ${card.ex}` : "");
+      else ans.textContent = `${card.pinyin}\n${card.en}` + (!isDash(card.exZh) ? `\nExample: ${card.exZh} (${card.exPy}) — ${card.exEn}` : "");
+      det.appendChild(ans);
+      wrap.appendChild(det);
+    }
+  }
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+// ---------- events ----------
+$("allBtn").addEventListener("click", () => { document.querySelectorAll("#treeWrap input[data-deck]").forEach(c => { c.checked = true; }); syncCheckboxes(); updateSelectionLabel(); });
+$("noneBtn").addEventListener("click", () => { document.querySelectorAll("#treeWrap input[data-deck]").forEach(c => { c.checked = false; }); syncCheckboxes(); updateSelectionLabel(); });
+$("startBtn").addEventListener("click", () => {
+  const cards = selectedDecks().flatMap(d => d.cards);
+  startRound(cards, { order: document.querySelector("input[name=order]:checked").value });
+});
+$("revealBtn").addEventListener("click", reveal);
+$("rightBtn").addEventListener("click", () => grade(true));
+$("wrongBtn").addEventListener("click", () => grade(false));
+$("quitBtn").addEventListener("click", () => { stopAudio(); $("quizView").classList.add("hidden"); $("setupView").classList.remove("hidden"); });
+$("retryWrongBtn").addEventListener("click", () => { startRound(wrongCards, queueMeta); });
+$("retryAllBtn").addEventListener("click", () => {
+  const cards = selectedDecks().flatMap(d => d.cards);
+  if (cards.length) startRound(cards, queueMeta); else { $("resultsView").classList.add("hidden"); $("setupView").classList.remove("hidden"); }
+});
+$("homeBtn").addEventListener("click", () => { stopAudio(); $("resultsView").classList.add("hidden"); $("setupView").classList.remove("hidden"); });
+$("reloadBtn").addEventListener("click", () => init().catch(showErr));
+document.addEventListener("keydown", (e) => {
+  if ($("quizView").classList.contains("hidden")) return;
+  if (e.key === " " && !$("revealRow").classList.contains("hidden")){ e.preventDefault(); reveal(); }
+  else if (!$("gradeRow").classList.contains("hidden")){
+    if (e.key === "ArrowRight") grade(true);
+    if (e.key === "ArrowLeft") grade(false);
+  }
+});
+function showErr(err){
+  $("status").innerHTML = "";
+  const d = el("div", "error", "Could not load decks from GitHub: " + err.message);
+  $("status").appendChild(d);
+  $("treeWrap").innerHTML = "<p class='muted'>Loading failed — press ↻ Reload to try again.</p>";
+}
+async function init(){ try { await loadDecks(); } catch (e){ showErr(e); } }
+init();
+</script>
+</body>
+</html>
