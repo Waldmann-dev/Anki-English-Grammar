@@ -197,6 +197,25 @@ function parseTSV(text, path){
 }
 
 // ---------- loading live from GitHub ----------
+// Fetch with automatic retries for transient failures — GitHub sometimes
+// answers a tree fetch with a 500. Retries 5xx + network errors, not 4xx.
+async function fetchRetry(url, opts, attempts, onRetry){
+  let lastErr = null, lastRes = null;
+  for (let i = 0; i < attempts; i++){
+    try {
+      const res = await fetch(url, opts);
+      if (res.ok) return res;
+      lastRes = res;
+      if (res.status < 500) return res; // 4xx: retrying won't help
+    } catch (e) { lastErr = e; }
+    if (i < attempts - 1){
+      if (onRetry) onRetry(i + 1, lastRes ? lastRes.status : "network");
+      await new Promise(r => setTimeout(r, 1500 * (i + 1)));
+    }
+  }
+  if (lastRes) return lastRes;
+  throw lastErr || new Error("fetch failed");
+}
 async function loadDecks(){
   $("status").innerHTML = "";
   $("startBtn").disabled = true;
@@ -209,8 +228,13 @@ async function loadDecks(){
     $("loadCount").textContent = total ? `${done} of ${total} decks loaded · ${total - done} left` : "";
   };
   setProgress(0, 0);
-  const treeRes = await fetch(TREE_URL, { headers: { "Accept": "application/vnd.github+json" } });
-  if (!treeRes.ok) throw new Error(`GitHub API ${treeRes.status} — try again in a minute (rate limit?)`);
+  const treeRes = await fetchRetry(TREE_URL, { headers: { "Accept": "application/vnd.github+json" } }, 3,
+    () => { const l = $("loadLabel"); if (l) l.textContent = "GitHub hiccup — retrying…"; });
+  if (!treeRes.ok){
+    if (treeRes.status === 403) throw new Error("GitHub rate limit reached — try again in a minute.");
+    if (treeRes.status >= 500) throw new Error(`GitHub server error (HTTP ${treeRes.status}) — press Reload to try again.`);
+    throw new Error(`GitHub API ${treeRes.status} — try again in a minute.`);
+  }
   const tree = await treeRes.json();
   // Vocabulary only: the grammar decks stay in the repo (for Anki import)
   // but are not loaded here — loading all 121 TSVs made the page slow.
@@ -221,7 +245,7 @@ async function loadDecks(){
   setProgress(0, tsvPaths.length);
   for (const p of tsvPaths){
     try {
-      const res = await fetch(rawUrl(p));
+      const res = await fetchRetry(rawUrl(p), {}, 2);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const dir = p.replace(/\/cards\.tsv$/, "");
       const cards = parseTSV(await res.text(), dir);
